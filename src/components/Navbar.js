@@ -1,9 +1,11 @@
+import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import ProfileMenu from "./ProfileMenu";
 
 function Navbar() {
   const location = useLocation();
   const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const navLinks = [
     { path: "/home", label: "Home" },
@@ -17,12 +19,14 @@ function Navbar() {
     <nav className="bg-blue-700 text-white shadow-md">
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex justify-between items-center h-16">
-          {/* Left side - Logo */}
+          {/* Logo */}
           <div className="flex items-center gap-2 font-bold text-lg">
-            🌍 Global Expense Tracker
+            <span className="text-xl">🌍</span>
+            <span className="hidden sm:inline">Global Expense Tracker</span>
+            <span className="sm:hidden">Expense Tracker</span>
           </div>
 
-          {/* Center - Navigation Links */}
+          {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-6">
             {navLinks.map((link) => (
               <Link
@@ -39,12 +43,69 @@ function Navbar() {
             ))}
           </div>
 
-          {/* Right side - Profile */}
-          <div>
-            {currentUser && <ProfileMenu user={currentUser} />}
+          {/* Right side - Profile + Mobile Menu Button */}
+          <div className="flex items-center gap-3">
+            {currentUser && (
+              <div className="hidden md:block">
+                <ProfileMenu user={currentUser} />
+              </div>
+            )}
+
+            {/* Mobile Hamburger Button */}
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="md:hidden text-white focus:outline-none"
+            >
+              {isMobileMenuOpen ? (
+                <span className="text-2xl">✕</span>
+              ) : (
+                <span className="text-2xl">☰</span>
+              )}
+            </button>
           </div>
         </div>
       </div>
+
+      {/* Mobile Menu */}
+      {isMobileMenuOpen && (
+        <div className="md:hidden bg-blue-800 border-t border-blue-600">
+          <div className="px-4 py-3 space-y-1">
+            {navLinks.map((link) => (
+              <Link
+                key={link.path}
+                to={link.path}
+                onClick={() => setIsMobileMenuOpen(false)}
+                className={`block px-4 py-2.5 rounded-lg text-sm font-medium transition ${
+                  location.pathname === link.path
+                    ? "bg-blue-600 text-yellow-300"
+                    : "text-white hover:bg-blue-700"
+                }`}
+              >
+                {link.label}
+              </Link>
+            ))}
+
+            {/* Profile section in mobile */}
+            {currentUser && (
+              <div className="border-t border-blue-600 mt-3 pt-3">
+                <div className="px-4 py-2">
+                  <p className="font-semibold text-white">{currentUser.name}</p>
+                  <p className="text-sm text-blue-200">{currentUser.email}</p>
+                </div>
+                <button
+                  onClick={() => {
+                    localStorage.removeItem("currentUser");
+                    window.location.href = "/login";
+                  }}
+                  className="w-full text-left px-4 py-2.5 text-red-300 hover:bg-blue-700 rounded-lg text-sm font-medium"
+                >
+                  Sign Out
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </nav>
   );
 }
