@@ -1,9 +1,10 @@
 import { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import ProfileMenu from "./ProfileMenu";
 
 function Navbar() {
   const location = useLocation();
+  const navigate = useNavigate();
   const currentUser = JSON.parse(localStorage.getItem("currentUser"));
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -14,6 +15,12 @@ function Navbar() {
     { path: "/india-expenses", label: "India Expenses" },
     { path: "/comparison", label: "Comparison" },
   ];
+
+  const handleSignOut = () => {
+    localStorage.removeItem("currentUser");
+    setIsMobileMenuOpen(false);
+    navigate("/login");
+  };
 
   return (
     <nav className="bg-blue-700 text-white shadow-md">
@@ -43,7 +50,7 @@ function Navbar() {
             ))}
           </div>
 
-          {/* Right side - Profile + Mobile Menu Button */}
+          {/* Right side */}
           <div className="flex items-center gap-3">
             {currentUser && (
               <div className="hidden md:block">
@@ -51,16 +58,12 @@ function Navbar() {
               </div>
             )}
 
-            {/* Mobile Hamburger Button */}
+            {/* Mobile Hamburger */}
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="md:hidden text-white focus:outline-none"
+              className="md:hidden text-white focus:outline-none text-2xl"
             >
-              {isMobileMenuOpen ? (
-                <span className="text-2xl">✕</span>
-              ) : (
-                <span className="text-2xl">☰</span>
-              )}
+              {isMobileMenuOpen ? "✕" : "☰"}
             </button>
           </div>
         </div>
@@ -85,7 +88,6 @@ function Navbar() {
               </Link>
             ))}
 
-            {/* Profile section in mobile */}
             {currentUser && (
               <div className="border-t border-blue-600 mt-3 pt-3">
                 <div className="px-4 py-2">
@@ -93,10 +95,7 @@ function Navbar() {
                   <p className="text-sm text-blue-200">{currentUser.email}</p>
                 </div>
                 <button
-                  onClick={() => {
-                    localStorage.removeItem("currentUser");
-                    window.location.href = "/login";
-                  }}
+                  onClick={handleSignOut}
                   className="w-full text-left px-4 py-2.5 text-red-300 hover:bg-blue-700 rounded-lg text-sm font-medium"
                 >
                   Sign Out
